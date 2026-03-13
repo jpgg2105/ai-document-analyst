@@ -1,6 +1,7 @@
 """LLM generation — produces grounded answers with citations and streaming support."""
 
 from __future__ import annotations
+
 import time
 from collections.abc import AsyncIterator
 
@@ -8,7 +9,7 @@ from openai import AsyncOpenAI
 
 from src.api.middleware.logging import get_logger
 from src.config import settings
-from src.generation.prompts import SYSTEM_PROMPT, _NO_INFO_MSG, build_query_prompt
+from src.generation.prompts import _NO_INFO_MSG, SYSTEM_PROMPT, build_query_prompt
 from src.models import QueryResult, RetrievedChunk
 
 logger = get_logger(__name__)
