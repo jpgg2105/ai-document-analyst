@@ -55,22 +55,27 @@ AI Document Analyst is a production RAG (Retrieval-Augmented Generation) system 
 | Evaluation | DeepEval + RAGAS | Industry-standard RAG evaluation frameworks |
 
 ## Quick Start
-
 ```bash
 # Clone the repository
-# git clone https://github.com//ai-document-analyst.git
+git clone https://github.com/jpgg2105/ai-document-analyst.git
 cd ai-document-analyst
 
 # Set environment variables
 cp .env.example .env
 # Edit .env with your OpenAI API key
 
-# Start all services
+# Start all services (backend + frontend + Qdrant)
 docker compose up --build
 
-# API is available at http://localhost:8000
+# Frontend at http://localhost:3000
+# API at http://localhost:8000
 # API docs at http://localhost:8000/docs
 ```
+```
+
+And add this row to the **Tech Stack** table:
+```
+| Frontend | React + Vite | Component-based UI with streaming support and drag-and-drop uploads |
 
 ## API Endpoints
 
