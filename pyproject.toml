@@ -36,6 +36,7 @@ dev = [
     "httpx>=0.25.0",
     "ruff>=0.1.0",
     "mypy>=1.7.0",
+    "pydantic[mypy]>=2.5.0"
 ]
 eval = [
     "deepeval>=0.21.0",
@@ -61,4 +62,5 @@ select = ["E", "F", "I", "N", "W", "UP"]
 
 [tool.mypy]
 python_version = "3.11"
+plugins = ["pydantic.mypy"]
 strict = true
