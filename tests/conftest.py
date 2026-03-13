@@ -1,8 +1,9 @@
 """Shared pytest fixtures."""
 
-import pytest
-from pathlib import Path
 import tempfile
+from pathlib import Path
+
+import pytest
 
 
 @pytest.fixture
@@ -25,7 +26,12 @@ def sample_text() -> str:
 def sample_markdown_file(sample_text: str) -> Path:
     """Create a temporary markdown file for testing."""
     tmp = tempfile.NamedTemporaryFile(suffix=".md", delete=False, mode="w")
-    content = f"# Machine Learning Overview\n\n{sample_text}\n\n## Deep Learning\n\nDeep learning uses neural networks with many layers to learn representations of data."
+    content = (
+        f"# Machine Learning Overview\n\n{sample_text}\n\n"
+        "## Deep Learning\n\n"
+        "Deep learning uses neural networks with many layers "
+        "to learn representations of data."
+    )
     tmp.write(content)
     tmp.close()
     return Path(tmp.name)

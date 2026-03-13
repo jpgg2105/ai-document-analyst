@@ -1,12 +1,17 @@
 """Tests for prompt formatting and generation helpers."""
 
-from src.generation.prompts import format_context, build_query_prompt
+from src.generation.prompts import build_query_prompt, format_context
 
 
 class TestFormatContext:
     def test_single_chunk(self):
         chunks = [
-            {"text": "Hello world", "filename": "doc.pdf", "page_number": 1, "section": "Intro"}
+            {
+                "text": "Hello world",
+                "filename": "doc.pdf",
+                "page_number": 1,
+                "section": "Intro",
+            }
         ]
         ctx = format_context(chunks)
         assert "Source 1" in ctx
@@ -32,9 +37,15 @@ class TestFormatContext:
 
 class TestBuildQueryPrompt:
     def test_contains_query(self):
-        prompt = build_query_prompt("What is RAG?", [{"text": "RAG info", "filename": "x.pdf", "page_number": 1, "section": ""}])
+        prompt = build_query_prompt(
+            "What is RAG?",
+            [{"text": "RAG info", "filename": "x.pdf", "page_number": 1, "section": ""}],
+        )
         assert "What is RAG?" in prompt
 
     def test_contains_context(self):
-        prompt = build_query_prompt("test", [{"text": "context text", "filename": "f.md", "page_number": 2, "section": ""}])
+        prompt = build_query_prompt(
+            "test",
+            [{"text": "context text", "filename": "f.md", "page_number": 2, "section": ""}],
+        )
         assert "context text" in prompt

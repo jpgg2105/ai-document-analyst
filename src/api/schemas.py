@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 # Documents
 # ---------------------------------------------------------------------------
 
+
 class DocumentResponse(BaseModel):
     document_id: str
     filename: str
@@ -29,9 +30,14 @@ class DocumentListResponse(BaseModel):
 # Query
 # ---------------------------------------------------------------------------
 
+
 class QueryRequest(BaseModel):
-    query: str = Field(..., min_length=1, max_length=2000, description="Natural language question")
-    document_id: str | None = Field(None, description="Restrict search to a specific document")
+    query: str = Field(
+        ..., min_length=1, max_length=2000, description="Natural language question"
+    )
+    document_id: str | None = Field(
+        None, description="Restrict search to a specific document"
+    )
     stream: bool = Field(False, description="Stream the response via SSE")
 
 
@@ -57,6 +63,7 @@ class QueryResponse(BaseModel):
 # ---------------------------------------------------------------------------
 # Health
 # ---------------------------------------------------------------------------
+
 
 class HealthResponse(BaseModel):
     status: str = "ok"

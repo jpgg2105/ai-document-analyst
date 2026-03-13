@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from src.api.middleware.logging import setup_logging, get_logger
+from src.api.middleware.logging import get_logger, setup_logging
 from src.api.middleware.timing import RequestTimingMiddleware
 from src.api.routes import documents, query, upload
 from src.api.schemas import HealthResponse

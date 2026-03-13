@@ -6,9 +6,8 @@ the test suite runnable without external services.
 """
 
 import io
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
-import pytest
 from fastapi.testclient import TestClient
 
 from src.api.main import app
@@ -66,13 +65,14 @@ class TestQueryEndpoint:
         mock_bm25,
         mock_vector,
     ):
+        from src.generation.prompts import _NO_INFO_MSG
         from src.models import QueryResult
 
         mock_vector.return_value = []
         mock_bm25.return_value = []
         mock_rerank.return_value = []
         mock_generate.return_value = QueryResult(
-            answer="I don't have enough information in the provided documents to answer this question.",
+            answer=_NO_INFO_MSG,
             sources=[],
             confidence=0.0,
             query="What is Python?",
@@ -101,7 +101,12 @@ class TestUploadWithMocks:
             pages=[ParsedPage(page_number=1, text="Hello world")],
         )
         mock_chunk.return_value = [
-            Chunk(document_id="test", text="Hello world", chunk_index=0, token_count=2)
+            Chunk(
+                document_id="test",
+                text="Hello world",
+                chunk_index=0,
+                token_count=2,
+            )
         ]
         mock_embed.return_value = 1
 

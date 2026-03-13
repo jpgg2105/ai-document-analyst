@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from qdrant_client.models import FieldCondition, Filter, MatchValue
 from rank_bm25 import BM25Okapi
 
 from src.api.middleware.logging import get_logger
@@ -15,8 +16,6 @@ logger = get_logger(__name__)
 def _fetch_all_chunks(document_id: str | None = None) -> list[dict]:
     """Scroll through Qdrant and return all stored payloads."""
     client = get_qdrant_client()
-
-    from qdrant_client.models import Filter, FieldCondition, MatchValue
 
     scroll_filter = None
     if document_id:

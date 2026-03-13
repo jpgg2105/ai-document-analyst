@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import tiktoken
 
-from src.config import settings
 from src.api.middleware.logging import get_logger
-from src.ingestion.parser import ParsedDocument, ParsedPage
+from src.config import settings
+from src.ingestion.parser import ParsedDocument
 from src.models import Chunk
 
 logger = get_logger(__name__)

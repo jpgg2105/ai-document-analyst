@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from src.ingestion.chunker import chunk_document, _count_tokens, _recursive_split
+from src.ingestion.chunker import _count_tokens, _recursive_split, chunk_document
 from src.ingestion.parser import parse_document
 
 
@@ -42,7 +42,9 @@ class TestRecursiveSplit:
 class TestChunkDocument:
     def test_chunks_created(self, sample_markdown_file: Path):
         parsed = parse_document(sample_markdown_file)
-        chunks = chunk_document(parsed, document_id="test-doc-1", chunk_size=64, chunk_overlap=5)
+        chunks = chunk_document(
+            parsed, document_id="test-doc-1", chunk_size=64, chunk_overlap=5
+        )
         assert len(chunks) > 0
         for chunk in chunks:
             assert chunk.document_id == "test-doc-1"
@@ -58,6 +60,7 @@ class TestChunkDocument:
 
     def test_empty_document(self):
         from src.ingestion.parser import ParsedDocument
+
         parsed = ParsedDocument(filename="empty.md", file_type="markdown", pages=[])
         chunks = chunk_document(parsed, document_id="empty")
         assert chunks == []

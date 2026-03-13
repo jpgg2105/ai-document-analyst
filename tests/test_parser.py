@@ -1,11 +1,11 @@
 """Tests for document parsing (markdown, text, error handling)."""
 
-from pathlib import Path
 import tempfile
+from pathlib import Path
 
 import pytest
 
-from src.ingestion.parser import parse_document, SUPPORTED_TYPES
+from src.ingestion.parser import SUPPORTED_TYPES, parse_document
 
 
 class TestParseMarkdown:

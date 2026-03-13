@@ -1,13 +1,14 @@
 """Shared data models for the AI Document Analyst."""
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from uuid import uuid4
 
 
-class DocumentStatus(str, Enum):
+class DocumentStatus(StrEnum):
     """Processing status of a document."""
+
     PENDING = "pending"
     PROCESSING = "processing"
     COMPLETED = "completed"
@@ -17,6 +18,7 @@ class DocumentStatus(str, Enum):
 @dataclass
 class DocumentMetadata:
     """Metadata attached to an ingested document."""
+
     document_id: str = field(default_factory=lambda: str(uuid4()))
     filename: str = ""
     file_type: str = ""
@@ -24,7 +26,7 @@ class DocumentMetadata:
     total_chunks: int = 0
     status: DocumentStatus = DocumentStatus.PENDING
     created_at: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+        default_factory=lambda: datetime.now(UTC).isoformat()
     )
     file_size_bytes: int = 0
 
@@ -44,6 +46,7 @@ class DocumentMetadata:
 @dataclass
 class Chunk:
     """A single text chunk produced by the chunking pipeline."""
+
     chunk_id: str = field(default_factory=lambda: str(uuid4()))
     document_id: str = ""
     text: str = ""
@@ -70,6 +73,7 @@ class Chunk:
 @dataclass
 class RetrievedChunk:
     """A chunk returned from the retrieval engine with a relevance score."""
+
     chunk: Chunk
     score: float = 0.0
     retrieval_method: str = ""  # "vector", "bm25", "fusion", "reranked"
@@ -78,6 +82,7 @@ class RetrievedChunk:
 @dataclass
 class QueryResult:
     """Final result returned to the user."""
+
     answer: str = ""
     sources: list[RetrievedChunk] = field(default_factory=list)
     confidence: float = 0.0

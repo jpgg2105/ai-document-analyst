@@ -5,6 +5,9 @@ from __future__ import annotations
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
     Distance,
+    FieldCondition,
+    Filter,
+    MatchValue,
     PointStruct,
     VectorParams,
 )
@@ -35,6 +38,7 @@ def _get_model() -> SentenceTransformer:
 # Qdrant helpers
 # ---------------------------------------------------------------------------
 
+
 def get_qdrant_client() -> QdrantClient:
     """Return a Qdrant client connected to the configured host."""
     return QdrantClient(host=settings.qdrant_host, port=settings.qdrant_port)
@@ -57,6 +61,7 @@ def ensure_collection(client: QdrantClient) -> None:
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
 
 def embed_texts(texts: list[str]) -> list[list[float]]:
     """Generate embedding vectors for a list of texts."""
@@ -107,8 +112,6 @@ def embed_and_store(chunks: list[Chunk]) -> int:
 
 def delete_document_vectors(document_id: str) -> None:
     """Remove all vectors belonging to a document from Qdrant."""
-    from qdrant_client.models import Filter, FieldCondition, MatchValue
-
     client = get_qdrant_client()
     client.delete(
         collection_name=settings.qdrant_collection,

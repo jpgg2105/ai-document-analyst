@@ -9,7 +9,7 @@ from openai import AsyncOpenAI
 
 from src.api.middleware.logging import get_logger
 from src.config import settings
-from src.generation.prompts import SYSTEM_PROMPT, build_query_prompt
+from src.generation.prompts import SYSTEM_PROMPT, _NO_INFO_MSG, build_query_prompt
 from src.models import QueryResult, RetrievedChunk
 
 logger = get_logger(__name__)
@@ -38,7 +38,7 @@ async def generate_answer(
     # ---- Confidence gate ----
     if not retrieved_chunks:
         return QueryResult(
-            answer="I don't have enough information in the provided documents to answer this question.",
+            answer=_NO_INFO_MSG,
             sources=[],
             confidence=0.0,
             query=query,
@@ -49,7 +49,7 @@ async def generate_answer(
     top_score = retrieved_chunks[0].score
     if top_score < settings.confidence_threshold:
         return QueryResult(
-            answer="I don't have enough information in the provided documents to answer this question.",
+            answer=_NO_INFO_MSG,
             sources=retrieved_chunks,
             confidence=top_score,
             query=query,
@@ -111,12 +111,12 @@ async def generate_answer_stream(
     Yields plain-text chunks suitable for Server-Sent Events.
     """
     if not retrieved_chunks:
-        yield "I don't have enough information in the provided documents to answer this question."
+        yield _NO_INFO_MSG
         return
 
     top_score = retrieved_chunks[0].score
     if top_score < settings.confidence_threshold:
-        yield "I don't have enough information in the provided documents to answer this question."
+        yield _NO_INFO_MSG
         return
 
     chunk_dicts = [
