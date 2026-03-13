@@ -1,7 +1,6 @@
 """LLM generation — produces grounded answers with citations and streaming support."""
 
 from __future__ import annotations
-
 import time
 from collections.abc import AsyncIterator
 
