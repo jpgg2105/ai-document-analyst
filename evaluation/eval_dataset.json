@@ -1,0 +1,122 @@
+[
+  {
+    "id": "eval-001",
+    "query": "What is retrieval-augmented generation?",
+    "expected_answer": "RAG is a technique that combines document retrieval with language model generation to produce grounded, cited answers.",
+    "relevant_keywords": ["retrieval", "augmented", "generation", "documents", "search"],
+    "source_document": "ml_overview.pdf",
+    "difficulty": "easy"
+  },
+  {
+    "id": "eval-002",
+    "query": "How does the chunking pipeline work?",
+    "expected_answer": "Documents are split into overlapping token-counted chunks using recursive splitting at paragraph, sentence, and word boundaries.",
+    "relevant_keywords": ["chunking", "overlap", "tokens", "recursive", "split"],
+    "source_document": "architecture.md",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eval-003",
+    "query": "What embedding model is used and why?",
+    "expected_answer": "The system uses sentence-transformers all-MiniLM-L6-v2 because it is free, fast, and provides good quality for general-purpose retrieval tasks.",
+    "relevant_keywords": ["embedding", "sentence-transformers", "MiniLM", "vector"],
+    "source_document": "architecture.md",
+    "difficulty": "easy"
+  },
+  {
+    "id": "eval-004",
+    "query": "Explain the hybrid search approach.",
+    "expected_answer": "The system combines dense vector similarity search with BM25 keyword search using Reciprocal Rank Fusion, then applies cross-encoder reranking for the final results.",
+    "relevant_keywords": ["hybrid", "vector", "BM25", "fusion", "reranking"],
+    "source_document": "architecture.md",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eval-005",
+    "query": "What is Reciprocal Rank Fusion?",
+    "expected_answer": "RRF is a method for combining multiple ranked lists by assigning each document a score of 1/(k + rank) across all lists, then sorting by total score.",
+    "relevant_keywords": ["reciprocal", "rank", "fusion", "combine", "lists"],
+    "source_document": "architecture.md",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eval-006",
+    "query": "How does the system handle questions it cannot answer?",
+    "expected_answer": "When the top retrieval confidence score falls below a threshold, the system refuses to generate an answer and instead returns a message saying it lacks sufficient information.",
+    "relevant_keywords": ["confidence", "threshold", "refuse", "hallucination"],
+    "source_document": "architecture.md",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eval-007",
+    "query": "What vector database is used?",
+    "expected_answer": "The system uses Qdrant as its vector database for storing and searching document embeddings.",
+    "relevant_keywords": ["Qdrant", "vector", "database", "storage"],
+    "source_document": "architecture.md",
+    "difficulty": "easy"
+  },
+  {
+    "id": "eval-008",
+    "query": "How are citations generated in the response?",
+    "expected_answer": "Retrieved chunks include metadata such as filename, page number, and section. The LLM prompt instructs the model to cite sources in a specific format referencing this metadata.",
+    "relevant_keywords": ["citation", "source", "filename", "page", "reference"],
+    "source_document": "architecture.md",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eval-009",
+    "query": "What is the maximum file size for uploads?",
+    "expected_answer": "The maximum file upload size is 50 MB.",
+    "relevant_keywords": ["maximum", "file", "size", "upload", "limit", "50"],
+    "source_document": "api_docs.md",
+    "difficulty": "easy"
+  },
+  {
+    "id": "eval-010",
+    "query": "What is a transformer architecture?",
+    "expected_answer": "A transformer is a neural network architecture that uses self-attention mechanisms to process sequential data, forming the basis of large language models.",
+    "relevant_keywords": ["transformer", "self-attention", "neural", "network", "architecture"],
+    "source_document": "ml_overview.pdf",
+    "difficulty": "easy"
+  },
+  {
+    "id": "eval-011",
+    "query": "What is the difference between fine-tuning and pre-training?",
+    "expected_answer": "Pre-training trains a model on a massive general corpus, while fine-tuning adapts that pre-trained model to a specific downstream task using a smaller, task-specific dataset.",
+    "relevant_keywords": ["fine-tuning", "pre-training", "adapt", "task", "specific"],
+    "source_document": "ml_overview.pdf",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eval-012",
+    "query": "How is response latency measured?",
+    "expected_answer": "Response latency is measured end-to-end from query receipt to response delivery using API middleware that tracks processing time, reported as p95 latency in milliseconds.",
+    "relevant_keywords": ["latency", "p95", "milliseconds", "timing", "middleware"],
+    "source_document": "architecture.md",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eval-013",
+    "query": "What file formats are supported for upload?",
+    "expected_answer": "The system supports PDF, DOCX, Markdown (.md), and plain text (.txt) files.",
+    "relevant_keywords": ["PDF", "DOCX", "markdown", "text", "formats", "supported"],
+    "source_document": "api_docs.md",
+    "difficulty": "easy"
+  },
+  {
+    "id": "eval-014",
+    "query": "How does cross-encoder reranking improve results?",
+    "expected_answer": "Cross-encoder reranking scores each query-document pair jointly rather than independently, providing more accurate relevance estimates at the cost of higher computation, applied only to the top candidates from fusion.",
+    "relevant_keywords": ["cross-encoder", "reranking", "relevance", "precision", "joint"],
+    "source_document": "architecture.md",
+    "difficulty": "hard"
+  },
+  {
+    "id": "eval-015",
+    "query": "What are the key evaluation metrics for the system?",
+    "expected_answer": "The system is evaluated on retrieval recall@5, faithfulness, hallucination rate, response latency (p95), and chunk relevance through a combination of automated metrics and manual review.",
+    "relevant_keywords": ["recall", "faithfulness", "hallucination", "evaluation", "metrics"],
+    "source_document": "architecture.md",
+    "difficulty": "medium"
+  }
+]
