@@ -32,11 +32,6 @@ jobs:
         image: qdrant/qdrant:v1.12.1
         ports:
           - 6333:6333
-        options: >-
-          --health-cmd "qdrant healthz"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     env:
       QDRANT_HOST: localhost
       QDRANT_PORT: 6333
@@ -47,6 +42,18 @@ jobs:
         with:
           python-version: "3.11"
           cache: "pip"
+      - name: Wait for Qdrant
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:6333/collections > /dev/null 2>&1; then
+              echo "Qdrant is ready"
+              exit 0
+            fi
+            echo "Waiting for Qdrant... ($i/30)"
+            sleep 2
+          done
+          echo "Qdrant failed to start"
+          exit 1
       - name: Install dependencies
         run: pip install -e ".[dev]"
       - name: Run tests
