@@ -67,7 +67,8 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
     """Generate embedding vectors for a list of texts."""
     model = _get_model()
     embeddings = model.encode(texts, show_progress_bar=False, convert_to_numpy=True)
-    return embeddings.tolist()
+    result: list[list[float]] = embeddings.tolist()
+    return result
 
 
 def embed_and_store(chunks: list[Chunk]) -> int:

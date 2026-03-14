@@ -4,6 +4,7 @@ import logging
 import sys
 
 import structlog
+from structlog.stdlib import BoundLogger
 
 from src.config import settings
 
@@ -22,8 +23,7 @@ def setup_logging() -> None:
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
             structlog.processors.UnicodeDecoder(),
-            structlog.dev.ConsoleRenderer()
-            if settings.log_level == "DEBUG"
+            structlog.dev.ConsoleRenderer() if settings.log_level == "DEBUG"
             else structlog.processors.JSONRenderer(),
         ],
         wrapper_class=structlog.stdlib.BoundLogger,
@@ -39,6 +39,7 @@ def setup_logging() -> None:
     )
 
 
-def get_logger(name: str) -> structlog.stdlib.BoundLogger:
+def get_logger(name: str) -> BoundLogger:
     """Get a named structured logger."""
-    return structlog.get_logger(name)
+    logger: BoundLogger = structlog.get_logger(name)
+    return logger
