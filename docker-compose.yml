@@ -14,8 +14,7 @@ services:
     env_file:
       - .env
     depends_on:
-      qdrant:
-        condition: service_healthy
+      - qdrant
     volumes:
       - upload_data:/app/uploads
     restart: unless-stopped
@@ -27,11 +26,6 @@ services:
       - "6334:6334"
     volumes:
       - qdrant_data:/qdrant/storage
-    healthcheck:
-      test: ["CMD-SHELL", "python3 -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:6333/collections\")' || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     restart: unless-stopped
 
 volumes:
