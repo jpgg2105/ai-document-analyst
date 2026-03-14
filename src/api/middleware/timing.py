@@ -14,7 +14,9 @@ logger = get_logger(__name__)
 class RequestTimingMiddleware(BaseHTTPMiddleware):
     """Log request method, path, status code, and duration for every request."""
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Response]
+    ) -> Response:
         start = time.perf_counter()
         response: Response = await call_next(request)
         duration_ms = (time.perf_counter() - start) * 1000
