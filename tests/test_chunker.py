@@ -28,7 +28,7 @@ class TestRecursiveSplit:
         assert pieces[0] == text
 
     def test_splits_at_paragraph_boundary(self):
-        text = "Paragraph one content.\n\nParagraph two content."
+        text = "Paragraph one has several words of content here.\n\nParagraph two also has several words of content here."
         pieces = _recursive_split(text, max_tokens=10)
         assert len(pieces) >= 2
 
