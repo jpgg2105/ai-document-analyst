@@ -25,9 +25,7 @@ class DocumentMetadata:
     total_pages: int = 0
     total_chunks: int = 0
     status: DocumentStatus = DocumentStatus.PENDING
-    created_at: str = field(
-        default_factory=lambda: datetime.now(UTC).isoformat()
-    )
+    created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     file_size_bytes: int = 0
 
     def to_dict(self) -> dict:

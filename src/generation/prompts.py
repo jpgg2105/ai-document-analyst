@@ -7,7 +7,7 @@ SYSTEM_PROMPT = (
     "1. Answer based strictly on the provided context. "
     "Do not use outside knowledge.\n"
     "2. If the context does not contain enough information to answer, say: "
-    '"I don\'t have enough information in the provided documents '
+    "\"I don't have enough information in the provided documents "
     'to answer this question."\n'
     "3. Always cite your sources using [Source: filename, Page X] format.\n"
     "4. Be concise and precise. Prefer short, clear answers.\n"
@@ -25,10 +25,7 @@ Question: {query}
 
 Provide a clear, well-cited answer based on the context above."""
 
-_NO_INFO_MSG = (
-    "I don't have enough information in the provided documents "
-    "to answer this question."
-)
+_NO_INFO_MSG = "I don't have enough information in the provided documents to answer this question."
 
 
 def format_context(chunks: list[dict]) -> str:

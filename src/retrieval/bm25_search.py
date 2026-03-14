@@ -98,9 +98,7 @@ def bm25_search(
                 "file_type": payload.get("file_type", ""),
             },
         )
-        retrieved.append(
-            RetrievedChunk(chunk=chunk, score=float(score), retrieval_method="bm25")
-        )
+        retrieved.append(RetrievedChunk(chunk=chunk, score=float(score), retrieval_method="bm25"))
 
     logger.info("bm25_search_complete", query_length=len(query), results=len(retrieved))
     return retrieved

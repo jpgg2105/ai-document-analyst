@@ -31,12 +31,8 @@ class DocumentListResponse(BaseModel):
 
 
 class QueryRequest(BaseModel):
-    query: str = Field(
-        ..., min_length=1, max_length=2000, description="Natural language question"
-    )
-    document_id: str | None = Field(
-        None, description="Restrict search to a specific document"
-    )
+    query: str = Field(..., min_length=1, max_length=2000, description="Natural language question")
+    document_id: str | None = Field(None, description="Restrict search to a specific document")
     stream: bool = Field(False, description="Stream the response via SSE")
 
 

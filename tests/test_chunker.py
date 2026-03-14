@@ -42,9 +42,7 @@ class TestRecursiveSplit:
 class TestChunkDocument:
     def test_chunks_created(self, sample_markdown_file: Path):
         parsed = parse_document(sample_markdown_file)
-        chunks = chunk_document(
-            parsed, document_id="test-doc-1", chunk_size=64, chunk_overlap=5
-        )
+        chunks = chunk_document(parsed, document_id="test-doc-1", chunk_size=64, chunk_overlap=5)
         assert len(chunks) > 0
         for chunk in chunks:
             assert chunk.document_id == "test-doc-1"

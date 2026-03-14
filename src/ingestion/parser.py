@@ -22,6 +22,7 @@ SUPPORTED_TYPES: dict[str, str] = {
 @dataclass
 class ParsedPage:
     """One logical page / section extracted from a document."""
+
     page_number: int
     text: str
     section: str = ""
@@ -30,6 +31,7 @@ class ParsedPage:
 @dataclass
 class ParsedDocument:
     """Full parsed output of a single file."""
+
     filename: str
     file_type: str
     pages: list[ParsedPage]
@@ -42,6 +44,7 @@ class ParsedDocument:
 # ---------------------------------------------------------------------------
 # PDF parsing via PyMuPDF
 # ---------------------------------------------------------------------------
+
 
 def _parse_pdf(path: Path) -> list[ParsedPage]:
     import fitz  # PyMuPDF
@@ -59,6 +62,7 @@ def _parse_pdf(path: Path) -> list[ParsedPage]:
 # ---------------------------------------------------------------------------
 # DOCX parsing via python-docx
 # ---------------------------------------------------------------------------
+
 
 def _parse_docx(path: Path) -> list[ParsedPage]:
     from docx import Document as DocxDocument
@@ -172,8 +176,7 @@ def parse_document(path: Path) -> ParsedDocument:
     file_type = SUPPORTED_TYPES.get(suffix)
     if file_type is None:
         raise ValueError(
-            f"Unsupported file type '{suffix}'. "
-            f"Supported: {', '.join(SUPPORTED_TYPES.keys())}"
+            f"Unsupported file type '{suffix}'. Supported: {', '.join(SUPPORTED_TYPES.keys())}"
         )
 
     logger.info("parsing_document", filename=path.name, file_type=file_type)

@@ -21,19 +21,13 @@ router = APIRouter()
 async def _retrieve(query: str, document_id: str | None = None):
     """Run the full hybrid retrieval pipeline: vector → BM25 → RRF → rerank."""
     # 1. Vector search
-    vector_results = vector_search(
-        query, top_k=settings.retrieval_top_k, document_id=document_id
-    )
+    vector_results = vector_search(query, top_k=settings.retrieval_top_k, document_id=document_id)
 
     # 2. BM25 keyword search
-    bm25_results = bm25_search(
-        query, top_k=settings.retrieval_top_k, document_id=document_id
-    )
+    bm25_results = bm25_search(query, top_k=settings.retrieval_top_k, document_id=document_id)
 
     # 3. Reciprocal Rank Fusion
-    fused = reciprocal_rank_fusion(
-        vector_results, bm25_results, top_k=settings.retrieval_top_k
-    )
+    fused = reciprocal_rank_fusion(vector_results, bm25_results, top_k=settings.retrieval_top_k)
 
     # 4. Cross-encoder reranking
     reranked = rerank(query, fused, top_k=settings.rerank_top_k)
@@ -53,6 +47,7 @@ async def query_documents(body: QueryRequest) -> QueryResponse | StreamingRespon
 
     # ---- Streaming path ----
     if body.stream:
+
         async def event_generator():
             async for token in generate_answer_stream(body.query, retrieved):
                 yield f"data: {token}\n\n"
