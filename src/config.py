@@ -29,6 +29,9 @@ class Settings(BaseSettings):
 
     # Retrieval
     retrieval_top_k: int = 20
+    # Candidates sent to the cross-encoder. 10 kept the quality of 20 at about half the latency
+    # in jpgg2105/retrieval-ablation.
+    rerank_candidates: int = 10
     rerank_top_k: int = 5
     bm25_weight: float = 0.3
     vector_weight: float = 0.7

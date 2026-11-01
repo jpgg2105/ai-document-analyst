@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 from qdrant_client.models import FieldCondition, Filter, MatchValue
 from rank_bm25 import BM25Okapi
 
@@ -11,6 +13,51 @@ from src.ingestion.embedder import get_qdrant_client
 from src.models import Chunk, RetrievedChunk
 
 logger = get_logger(__name__)
+
+_WORD = re.compile(r"\w+")
+
+# Built indexes, keyed by document filter: (point count when built, BM25 index, payloads).
+# A changed point count (an upload or a delete, from any worker) triggers a rebuild.
+_index_cache: dict[str | None, tuple[int, BM25Okapi, list[dict]]] = {}
+
+
+def tokenize(text: str) -> list[str]:
+    """Lower-case word tokens. Splitting on whitespace alone kept punctuation attached
+    ("HTTPException," vs "HTTPException"); measured in jpgg2105/retrieval-ablation, word
+    tokens lifted BM25 recall@5 from 55% to 78%."""
+    return _WORD.findall(text.lower())
+
+
+def _point_count(document_id: str | None) -> int:
+    """Stored chunks for this filter, or -1 if Qdrant can't say (then the index is rebuilt)."""
+    count_filter = None
+    if document_id:
+        count_filter = Filter(
+            must=[FieldCondition(key="document_id", match=MatchValue(value=document_id))]
+        )
+    try:
+        result = get_qdrant_client().count(
+            collection_name=settings.qdrant_collection, count_filter=count_filter, exact=True
+        )
+        return int(result.count)
+    except Exception:  # noqa: BLE001 - e.g. no collection yet: fall back to rebuilding
+        return -1
+
+
+def _get_index(document_id: str | None) -> tuple[BM25Okapi | None, list[dict]]:
+    """Return the BM25 index for this filter, rebuilding it only when the stored chunks changed."""
+    count = _point_count(document_id)
+    cached = _index_cache.get(document_id)
+    if cached and count >= 0 and cached[0] == count:
+        return cached[1], cached[2]
+    records = _fetch_all_chunks(document_id)
+    if not records:
+        _index_cache.pop(document_id, None)
+        return None, []
+    index = BM25Okapi([tokenize(r.get("text", "")) for r in records])
+    _index_cache[document_id] = (count, index, records)
+    logger.info("bm25_index_built", chunks=len(records), document_id=document_id)
+    return index, records
 
 
 def _fetch_all_chunks(document_id: str | None = None) -> list[dict]:
@@ -56,23 +103,17 @@ def bm25_search(
 ) -> list[RetrievedChunk]:
     """Run BM25 keyword search over all stored chunks.
 
-    This is intentionally simple — for a production system with millions of
-    chunks you would use Elasticsearch or a dedicated BM25 index.  For a
-    portfolio project with thousands of chunks this is perfectly adequate.
+    The index is built once per set of stored chunks and reused until an upload
+    or a delete changes the point count. For millions of chunks you would use
+    Elasticsearch or a dedicated BM25 index.
     """
     top_k = top_k or settings.retrieval_top_k
 
-    records = _fetch_all_chunks(document_id)
-    if not records:
+    bm25, records = _get_index(document_id)
+    if bm25 is None:
         return []
 
-    # Tokenize corpus (lowercased whitespace split)
-    corpus_texts = [r.get("text", "") for r in records]
-    tokenized_corpus = [doc.lower().split() for doc in corpus_texts]
-
-    bm25 = BM25Okapi(tokenized_corpus)
-    tokenized_query = query.lower().split()
-    scores = bm25.get_scores(tokenized_query)
+    scores = bm25.get_scores(tokenize(query))
 
     # Pair scores with records and sort descending
     scored = sorted(
