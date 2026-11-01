@@ -21,6 +21,12 @@ _WORD = re.compile(r"\w+")
 _index_cache: dict[str | None, tuple[int, BM25Okapi, list[dict]]] = {}
 
 
+def invalidate_index() -> None:
+    """Drop every cached index. Called after an upload or a delete in this process; other
+    worker processes rely on the point-count check instead."""
+    _index_cache.clear()
+
+
 def tokenize(text: str) -> list[str]:
     """Lower-case word tokens. Splitting on whitespace alone kept punctuation attached
     ("HTTPException," vs "HTTPException"); measured in jpgg2105/retrieval-ablation, word

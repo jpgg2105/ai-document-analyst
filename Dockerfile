@@ -17,6 +17,10 @@ RUN pip install --no-cache-dir .
 # Copy evaluation scripts (not needed for install, but needed at runtime)
 COPY evaluation/ evaluation/
 
+# Run as an unprivileged user
+RUN useradd --create-home --uid 10001 app && mkdir -p /app/uploads && chown -R app /app
+USER app
+
 EXPOSE 8000
 
 CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
