@@ -30,7 +30,7 @@ async def _retrieve(query: str, document_id: str | None = None):
     fused = reciprocal_rank_fusion(vector_results, bm25_results, top_k=settings.retrieval_top_k)
 
     # 4. Cross-encoder reranking
-    reranked = rerank(query, fused, top_k=settings.rerank_top_k)
+    reranked = rerank(query, fused[: settings.rerank_candidates], top_k=settings.rerank_top_k)
 
     return reranked
 
