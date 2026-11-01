@@ -36,13 +36,10 @@ def _point_count(document_id: str | None) -> int:
             must=[FieldCondition(key="document_id", match=MatchValue(value=document_id))]
         )
     try:
-        return (
-            get_qdrant_client()
-            .count(
-                collection_name=settings.qdrant_collection, count_filter=count_filter, exact=True
-            )
-            .count
+        result = get_qdrant_client().count(
+            collection_name=settings.qdrant_collection, count_filter=count_filter, exact=True
         )
+        return int(result.count)
     except Exception:  # noqa: BLE001 - e.g. no collection yet: fall back to rebuilding
         return -1
 
