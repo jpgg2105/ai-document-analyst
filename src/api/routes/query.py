@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
+from starlette.concurrency import run_in_threadpool
 
 from src.api.middleware.logging import get_logger
 from src.api.schemas import QueryRequest, QueryResponse, SourceChunk
@@ -19,7 +20,15 @@ router = APIRouter()
 
 
 async def _retrieve(query: str, document_id: str | None = None):
-    """Run the full hybrid retrieval pipeline: vector → BM25 → RRF → rerank."""
+    """Run the full hybrid retrieval pipeline: vector → BM25 → RRF → rerank.
+
+    Every step is blocking (model inference, Qdrant calls), so the pipeline runs
+    in a worker thread instead of on the event loop.
+    """
+    return await run_in_threadpool(_retrieve_sync, query, document_id)
+
+
+def _retrieve_sync(query: str, document_id: str | None = None):
     # 1. Vector search
     vector_results = vector_search(query, top_k=settings.retrieval_top_k, document_id=document_id)
 
@@ -30,9 +39,7 @@ async def _retrieve(query: str, document_id: str | None = None):
     fused = reciprocal_rank_fusion(vector_results, bm25_results, top_k=settings.retrieval_top_k)
 
     # 4. Cross-encoder reranking
-    reranked = rerank(query, fused[: settings.rerank_candidates], top_k=settings.rerank_top_k)
-
-    return reranked
+    return rerank(query, fused[: settings.rerank_candidates], top_k=settings.rerank_top_k)
 
 
 @router.post("/query", response_model=QueryResponse)

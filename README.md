@@ -32,7 +32,9 @@ What the measurements changed in this code ([full write-up](https://github.com/j
   +12 points) and takes over 95% of query time on CPU; 10 candidates kept the quality of 20 (within
   2 points) at about half the time. The table's reranked rows were measured with 20.
 - **The BM25 index is built once** and rebuilt only when the stored point count changes, instead of
-  on every query (24 ms at 358 chunks, growing with the corpus).
+  on every query (24 ms at 358 chunks, growing with the corpus). Uploads and deletes clear the cache in
+  the process that handled them; other worker processes only see the count change, so a delete
+  followed by an upload with the same number of chunks would leave their index stale.
 - **Not changed yet:** 512-token chunks exceed MiniLM's 256-token input (90% are truncated for the
   dense side). 256-token chunks scored higher with the reranker, but not significantly on 60 questions.
 
@@ -66,14 +68,14 @@ there for it.
 | Component | Technology | Why |
 |---|---|---|
 | Backend | FastAPI | Async-native, automatic OpenAPI docs, streaming support |
-| Frontend | React + Vite | Component-based UI with streaming and drag-and-drop uploads |
+| Frontend | React + Vite | Streams answers as they are generated (SSE); drag-and-drop uploads |
 | Vector DB | Qdrant | Purpose-built for vector search, metadata filtering, easy Docker setup |
 | Embeddings | sentence-transformers (`all-MiniLM-L6-v2`) | Free, fast, good quality for general-purpose retrieval |
 | LLM | OpenAI GPT-4o-mini | Cost-efficient, strong instruction following |
 | Document Parsing | PyMuPDF | Fast PDF extraction with layout awareness |
-| Reranking | Cross-encoder (`ms-marco-MiniLM-L-6-v2`) | Precision boost at low added latency |
+| Reranking | Cross-encoder (`ms-marco-MiniLM-L-6-v2`) | Better ordering of the top results; the slowest stage on CPU (see Results) |
 | BM25 | rank-bm25 | Lightweight keyword search for hybrid retrieval |
-| Evaluation | DeepEval + RAGAS | Standard RAG evaluation frameworks |
+| Evaluation | `evaluation/run_eval.py` | Source hit rate, keyword recall, refusal rate and latency against a running instance |
 
 ## Quick Start
 ```bash
@@ -109,16 +111,18 @@ python -m evaluation.run_eval
 # Results are saved to evaluation/results/
 ```
 
-Run this and commit the output before citing any specific number in interviews or on a resume.
+It reports how often the expected source is cited, the share of expected keywords in each answer,
+the refusal rate and latency. Keyword recall is a rough proxy for answer quality, not a faithfulness
+measure. Retrieval was measured separately, in retrieval-ablation (see Results).
 
 ## Design notes
 
 - **Hybrid retrieval over pure vector search.** BM25 catches exact technical terms and identifiers that embedding similarity alone tends to miss.
-- **Reranking as a separate stage.** A cross-encoder reranks the top candidates from vector+BM25 before they reach the LLM, trading a small amount of latency for higher precision.
-- **Confidence thresholds on retrieval scores** are used to return "I don't know" rather than force an answer from weak context.
-
-(The specific quantified claims previously in this README — recall/precision percentages, hallucination rate — were not backed by a committed eval run and have been removed. Re-add them once `evaluation/run_eval.py` has actually been run against this system and the results are committed alongside this file.)
+- **Reranking as a separate stage.** A cross-encoder reorders the top 10 fused candidates before they reach the LLM. It improved nDCG@10 by 4 to 12 points in retrieval-ablation, and it is most of the query time on CPU.
+- **A confidence threshold on the top reranker score** (`CONFIDENCE_THRESHOLD`, default 0.35) returns "I don't know" rather than forcing an answer from weak context. The threshold hasn't been tuned.
+- **Blocking work runs off the event loop.** Parsing, embedding, retrieval and reranking run in a worker thread, so one slow upload doesn't stall other requests.
+- **Uploads keep only the file's basename** (`src/api/filenames.py`), so a crafted filename can't write outside the temp directory. The API and nginx both cap uploads at 50 MB, and the API container runs as an unprivileged user.
 
 ## License
 
-MIT
+MIT, see [LICENSE](LICENSE).

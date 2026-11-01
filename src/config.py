@@ -33,8 +33,6 @@ class Settings(BaseSettings):
     # in jpgg2105/retrieval-ablation.
     rerank_candidates: int = 10
     rerank_top_k: int = 5
-    bm25_weight: float = 0.3
-    vector_weight: float = 0.7
 
     # Confidence threshold — below this, the system refuses to answer
     confidence_threshold: float = 0.35
@@ -44,7 +42,8 @@ class Settings(BaseSettings):
     api_port: int = 8000
     log_level: str = "INFO"
 
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
+    # extra="ignore": an older .env with removed keys (BM25_WEIGHT, VECTOR_WEIGHT) still loads.
+    model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
 
 settings = Settings()

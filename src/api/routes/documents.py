@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException
 from src.api import document_store
 from src.api.schemas import DocumentListResponse, DocumentResponse
 from src.ingestion.embedder import delete_document_vectors
+from src.retrieval.bm25_search import invalidate_index
 
 router = APIRouter()
 
@@ -29,5 +30,6 @@ async def delete_document(document_id: str) -> dict:
         raise HTTPException(status_code=404, detail="Document not found.")
 
     delete_document_vectors(document_id)
+    invalidate_index()
     document_store.delete(document_id)
     return {"status": "deleted", "document_id": document_id}
