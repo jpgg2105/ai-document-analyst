@@ -15,25 +15,26 @@ FastAPI's documentation and on two BEIR benchmarks. Recall@5 = the answer is in 
 
 | Pipeline | FastAPI docs (60) | SciFact (300) | FiQA (648) |
 |---|---|---|---|
-| BM25 as implemented here (`text.lower().split()`) | 55% | 62% | 16% |
-| BM25 tokenized on word characters | 78% | 73% | 22% |
+| BM25, old tokenizer (`text.lower().split()`) | 55% | 62% | 16% |
+| BM25, word tokens (current) | 78% | 73% | 22% |
 | Dense vectors (all-MiniLM-L6-v2) | 77% | 74% | 37% |
-| Hybrid, as implemented here | 78% | 72% | 34% |
-| **Hybrid + reranker, as implemented here** | **87%** | **74%** | **38%** |
-| Hybrid with the fixed BM25 + reranker | 90% | 74% | 38% |
+| Hybrid, old tokenizer | 78% | 72% | 34% |
+| Hybrid + reranker, old tokenizer | 87% | 74% | 38% |
+| **Hybrid + reranker, word-token BM25** | **90%** | **74%** | **38%** |
 
-What that means for this code ([full write-up](https://github.com/jpgg2105/retrieval-ablation/blob/main/RESULTS.md)):
+What the measurements changed in this code ([full write-up](https://github.com/jpgg2105/retrieval-ablation/blob/main/RESULTS.md),
+[PR #2](https://github.com/jpgg2105/ai-document-analyst/pull/2)):
 
-- **The BM25 tokenizer is the weak point.** Splitting on whitespace keeps punctuation attached
-  (`HTTPException,` vs `HTTPException`). Fixed, BM25 answers all 30 exact-term questions.
-- **Hybrid fusion adds nothing significant over dense search** with the current tokenizer, and is 3 points
-  worse on FiQA.
-- **The reranker mostly improves ordering** (nDCG@10 +4 to +12 points) and takes over 95% of query time on
-  CPU: 0.4 to 3 s per query depending on the number of candidates. Reranking 10 candidates instead of 20
-  halves that at the same quality on these sets.
-- **512-token chunks exceed MiniLM's 256-token input**, so 90% of chunks are truncated for the dense side.
-- **The BM25 index is rebuilt from every stored chunk on each query** (24 ms at 358 chunks, growing with
-  the corpus).
+- **BM25 now tokenizes on word characters.** Splitting on whitespace kept punctuation attached
+  (`HTTPException,` vs `HTTPException`); with word tokens BM25 answers all 30 exact-term questions.
+  With the old tokenizer, hybrid fusion added nothing significant over dense search.
+- **The reranker now gets 10 candidates instead of 20.** It mostly improves ordering (nDCG@10 +4 to
+  +12 points) and takes over 95% of query time on CPU; 10 candidates kept the quality of 20 (within
+  2 points) at about half the time. The table's reranked rows were measured with 20.
+- **The BM25 index is built once** and rebuilt only when the stored point count changes, instead of
+  on every query (24 ms at 358 chunks, growing with the corpus).
+- **Not changed yet:** 512-token chunks exceed MiniLM's 256-token input (90% are truncated for the
+  dense side). 256-token chunks scored higher with the reranker, but not significantly on 60 questions.
 
 Generation quality (faithfulness, hallucination rate) isn't measured yet; the `evaluation/` harness is
 there for it.
