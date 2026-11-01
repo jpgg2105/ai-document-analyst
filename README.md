@@ -10,7 +10,7 @@ AI Document Analyst ingests documents, builds a semantic search index, and answe
 
 **Retrieval, measured.** [retrieval-ablation](https://github.com/jpgg2105/retrieval-ablation) rebuilds this
 service's retrieval in memory with the same settings (512-token chunks, 20 candidates per retriever,
-RRF with k = 60, cross-encoder reranking, 5 results) and measures each stage on 60 labelled questions over
+RRF with k = 60, cross-encoder reranking, 5 results) and measures each stage on 60 labeled questions over
 FastAPI's documentation and on two BEIR benchmarks. Recall@5 = the answer is in the 5 chunks returned.
 
 | Pipeline | FastAPI docs (60) | SciFact (300) | FiQA (648) |
